@@ -73,6 +73,9 @@ public class ExtratorVM {
     private int abaSelecionada = 0;
     private String logBatch = "";
 
+    // --- FEEDBACK --- //
+    private String textoFeedback = "";
+
     // --- DASHBOARD --- //
     private Long totalCurriculos;
     private String textoDesatualizados = "...";
@@ -656,6 +659,40 @@ public class ExtratorVM {
                 finalizarProcesso(desktop, "Erro: " + e.getMessage(), false);
             }
         });
+    }
+
+    @Command
+    @NotifyChange("textoFeedback")
+    public void enviarFeedback() {
+        if (textoFeedback == null || textoFeedback.trim().isEmpty()) {
+            org.zkoss.zk.ui.util.Clients.showNotification("Por favor, digite sua sugestão antes de enviar.", "warning", null, "middle_center", 3000);
+            return;
+        }
+
+        String nome = (usuarioLogado != null) ? usuarioLogado.getNome() : "Desconhecido";
+        String login = (usuarioLogado != null) ? usuarioLogado.getLogin() : "N/A";
+        String dataAtual = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date());
+
+        StringBuilder corpo = new StringBuilder();
+        corpo.append("<h2>Novo Feedback Recebido - SIGLattes</h2>");
+        corpo.append("<p><strong>Usuário:</strong> ").append(nome).append(" (").append(login).append(")</p>");
+        corpo.append("<p><strong>Data:</strong> ").append(dataAtual).append("</p>");
+        corpo.append("<hr/>");
+        corpo.append("<h3>Sugestão/Feedback:</h3>");
+        corpo.append("<p>").append(textoFeedback.replace("\n", "<br/>")).append("</p>");
+
+        final String textoFinal = corpo.toString();
+        // Dispara o email em background para não travar a interface ZK do usuário
+        java.util.concurrent.Executors.newSingleThreadExecutor().submit(() -> {
+            try {
+                com.uem.extrator.service.EmailService.getInstance().enviarAlerta("Novo Feedback de " + nome, textoFinal);
+            } catch (Exception e) {
+                logger.error("Erro ao disparar email de feedback", e);
+            }
+        });
+
+        this.textoFeedback = ""; // Limpa a textbox
+        org.zkoss.zk.ui.util.Clients.showNotification("Feedback enviado com sucesso! Obrigado pela colaboração.", "info", null, "middle_center", 4000);
     }
 
     @Command
@@ -1305,7 +1342,7 @@ public class ExtratorVM {
         }
     }
 
-    // Getters
+    // Getters && Setters
     public Curriculo getCurriculo() { return curriculo; }
     public void setCurriculo(Curriculo c) { this.curriculo = c; }
     public String getIdLattesInput() { return idLattesInput; }
@@ -1339,4 +1376,6 @@ public class ExtratorVM {
     public String getLogAtualizacao() { return logAtualizacao; }
     public Usuario getUsuarioLogado() { return usuarioLogado; }
     public Long getTotalPesquisadoresUem() { return totalPesquisadoresUem; }
+    public String getTextoFeedback() { return textoFeedback; }
+    public void setTextoFeedback(String textoFeedback) { this.textoFeedback = textoFeedback; }
 }
