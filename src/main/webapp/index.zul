@@ -374,23 +374,20 @@
 
                                 <div sclass="col-md-24 mt-8 mb-6">
 
-                                    <!-- 1. Cabeçalho Clicável (Gatilho) -->
+                                    <!-- Cabeçalho Clicável (Gatilho) -->
                                     <div sclass="col-md-12 mt-4 mb-4" 
                                          style="cursor: pointer;" 
                                          onClick='caixaFeedback.setVisible(!caixaFeedback.isVisible()); iconSeta.setIconSclass(caixaFeedback.isVisible() ? "fas fa-chevron-up" : "fas fa-chevron-down");'>
                                          
                                         <n:h3 class="h4 text-primary" style="margin-top: 10px; display: flex; align-items: center;">
-                                            Tem uma sugestão? 
-                                            <!-- Correção: Trocamos o label pelo a com iconSclass para renderizar perfeitamente no ZK -->
+                                            Tem uma sugestão?
                                             <a id="iconSeta" iconSclass="fas fa-chevron-down" style="margin-left: 10px; font-size: 16px; color: inherit; text-decoration: none; pointer-events: none;"/>
                                         </n:h3>
                                         <label value="Clique para abrir o campo de sugestões" sclass="h5 text-secondary"/>
                                     </div>
 
-                                    <!-- 2. Conteúdo Oculto (A sua Div) -->
                                     <div id="caixaFeedback" visible="false" style="width: fit-content; margin-left: -20px; margin-bottom: 15px;">
-                                        
-                                        <!-- Aplicando a classe limpa que criamos no <style> -->
+
                                         <textbox value="@bind(vm.textoFeedback)"
                                                  multiline="true"
                                                  rows="6"
