@@ -377,33 +377,38 @@
                                     <!-- Cabeçalho Clicável (Gatilho) -->
                                     <div sclass="col-md-12 mt-4 mb-4" 
                                          style="cursor: pointer;" 
-                                         onClick='caixaFeedback.setVisible(!caixaFeedback.isVisible()); iconSeta.setIconSclass(caixaFeedback.isVisible() ? "fas fa-chevron-up" : "fas fa-chevron-down");'>
+                                         onClick='caixaFeedback.setVisible(!caixaFeedback.isVisible()); iconSeta.setIconSclass(caixaFeedback.isVisible() ? "fas fa-chevron-up" : "fas fa-chevron-down"); textShow.setVisible(!textShow.isVisible())'>
                                          
                                         <n:h3 class="h4 text-primary" style="margin-top: 10px; display: flex; align-items: center;">
                                             Tem uma sugestão?
                                             <a id="iconSeta" iconSclass="fas fa-chevron-down" style="margin-left: 10px; font-size: 16px; color: inherit; text-decoration: none; pointer-events: none;"/>
                                         </n:h3>
-                                        <label value="Clique para abrir o campo de sugestões" sclass="h5 text-secondary"/>
+                                        <label id="textShow" value="Nos envie por aqui!" sclass="h5 text-secondary"/>
                                     </div>
 
                                     <div id="caixaFeedback" visible="false" style="width: fit-content; margin-left: -20px; margin-bottom: 15px;">
 
-                                        <textbox value="@bind(vm.textoFeedback)"
-                                                 multiline="true"
-                                                 rows="6"
-                                                 hflex="1"
-                                                 sclass="campoSugestao"
-                                                 style="font-family:Consolas, monospace;"
-                                                 placeholder="Escreva sua sugestão, opinião ou feedback aqui..." />
+                                            <a href="https://forms.gle/RDPddu8TLDzcT8mv8"
+                                               style="margin: 20px;">
+                                                Formulário - Feedback
+                                            </a>
 
-                                        <separator height="0px"/>
+<!--                                        <textbox value="@bind(vm.textoFeedback)"-->
+<!--                                                 multiline="true"-->
+<!--                                                 rows="6"-->
+<!--                                                 hflex="1"-->
+<!--                                                 sclass="campoSugestao"-->
+<!--                                                 style="font-family:Consolas, monospace;"-->
+<!--                                                 placeholder="Escreva sua sugestão, opinião ou feedback aqui..." />-->
 
-                                        <div sclass="d-flex justify-content-end mt-3">
-                                            <button label="Enviar Feedback"
-                                                    iconSclass="fas fa-paper-plane"
-                                                    sclass="btn btn-primary px-3 shadow-sm"
-                                                    onClick="@command('enviarFeedback')" />
-                                        </div>
+<!--                                        <separator height="0px"/>-->
+
+<!--                                        <div sclass="d-flex justify-content-end mt-3">-->
+<!--                                            <button label="Enviar Feedback"-->
+<!--                                                    iconSclass="fas fa-paper-plane"-->
+<!--                                                    sclass="btn btn-primary px-3 shadow-sm"-->
+<!--                                                    onClick="@command('enviarFeedback')" />-->
+<!--                                        </div>-->
                                     </div>
 
                                 </div>
