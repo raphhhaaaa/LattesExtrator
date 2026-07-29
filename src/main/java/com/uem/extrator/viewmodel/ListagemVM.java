@@ -240,7 +240,7 @@ public class ListagemVM {
     @Command
     public void downloadTodaBaseBackground() {
         // Cálculo de estimativa: ~0.2 segundos por currículo (baseado em benchmark de 8244 em 27 min)
-        long tempoEstimadoSegundos = (long) (this.totalCurriculos * 0.2);
+        long tempoEstimadoSegundos = (long) (this.totalCurriculos * 0.36);
         long minutos = tempoEstimadoSegundos / 60;
         String textoTempo = minutos > 0 ? (minutos + " minuto(s)") : "alguns segundos";
 
