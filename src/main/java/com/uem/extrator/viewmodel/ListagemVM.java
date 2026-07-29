@@ -239,8 +239,21 @@ public class ListagemVM {
 
     @Command
     public void downloadTodaBaseBackground() {
-        Clients.showNotification("Exportação massiva iniciada em background! Você receberá um e-mail com o link/arquivo em breve.", "info", null, null, 5000);
+        // Cálculo de estimativa: ~0.2 segundos por currículo (baseado em benchmark de 8244 em 27 min)
+        long tempoEstimadoSegundos = (long) (this.totalCurriculos * 0.2);
+        long minutos = tempoEstimadoSegundos / 60;
+        String textoTempo = minutos > 0 ? (minutos + " minuto(s)") : "alguns segundos";
+
+        String msg = "Exportação massiva iniciada! Tempo estimado: ~" + textoTempo + ". Você receberá um e-mail ao concluir.";
+        logger.info("[Exportação] Solicitada exportação massiva para {} currículos. Tempo estimado: {}", this.totalCurriculos, textoTempo);
+
+        Clients.showNotification(msg, "info", null, null, 6000);
         
+        final String baseUrl = org.zkoss.zk.ui.Executions.getCurrent().getScheme() + "://" +
+                         org.zkoss.zk.ui.Executions.getCurrent().getServerName() + ":" +
+                         org.zkoss.zk.ui.Executions.getCurrent().getServerPort() +
+                         org.zkoss.zk.ui.Executions.getCurrent().getContextPath();
+                         
         new Thread(() -> {
             try {
                 logger.info("Iniciando exportação COMPLETA em background...");
@@ -264,18 +277,31 @@ public class ListagemVM {
                         }
                     }
                 }
-                
                 logger.info("Exportação em background finalizada. Arquivo: " + tempFile.getAbsolutePath());
                 
-                com.uem.extrator.service.EmailService.getInstance().enviarComAnexo(
-                    "Exportação Lattes Concluída", 
-                    "A extração massiva de toda a base Lattes terminou com sucesso.<br><br>O arquivo compactado contendo todos os currículos em formato XML segue em anexo.",
-                    tempFile
-                );
-                
-                // Opcional: apagar o arquivo tempFile após o envio para não lotar o servidor,
-                // já que o JavaMail envia a cópia para a rede.
-                tempFile.delete();
+                long lengthBytes = tempFile.length();
+                if (lengthBytes < (25 * 1024 * 1024)) { // Menor que 25MB
+                    com.uem.extrator.service.EmailService.getInstance().enviarComAnexo(
+                        "Exportação Lattes Concluída", 
+                        "A extração massiva de toda a base Lattes terminou com sucesso.<br><br>O arquivo compactado contendo todos os currículos em formato XML (" + (lengthBytes / 1024) + " KB) segue em anexo direto neste e-mail.",
+                        tempFile
+                    );
+                    tempFile.delete(); // Deleta imediatamente pois já foi enviado como anexo
+                    logger.info("Arquivo enviado como anexo e deletado do servidor.");
+                } else {
+                    // Maior que 25MB, usa o servlet
+                    String token = com.uem.extrator.service.DownloadManager.getInstance().registerFile(tempFile);
+                    String downloadUrl = baseUrl + "/api/download?token=" + token;
+                    
+                    com.uem.extrator.service.EmailService.getInstance().enviarAlerta(
+                        "Exportação Lattes Concluída (Arquivo Grande)", 
+                        "A extração massiva de toda a base Lattes terminou com sucesso.<br><br>"
+                        + "O arquivo compactado contendo todos os currículos em formato XML está pronto.<br><br>"
+                        + "<b>Tamanho do Arquivo:</b> " + (lengthBytes / (1024 * 1024)) + " MB<br><br>"
+                        + "<a href='" + downloadUrl + "' style='padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Baixar Arquivo ZIP</a>"
+                        + "<br><br><small>Nota: Este link expirará automaticamente em 24 horas.</small>"
+                    );
+                }
 
             } catch (Exception e) {
                 logger.error("Erro na thread de exportação full.", e);
