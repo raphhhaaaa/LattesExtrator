@@ -8,12 +8,11 @@
 <zk>
     <style>
         body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
             padding: 0;
+            height: 100vh;
+            background-color: #f4f4f4;
+            overflow: hidden;
         }
         .plano-de-fundo {
             position: fixed;
@@ -22,9 +21,7 @@
             width: 100%;
             height: 100%;
             display: flex;
-            justify-content: right;
-            align-items: center;
-            overflow: hidden;
+            flex-direction: row;
         }
         .plano-de-fundo::before {
             content: "";
@@ -41,17 +38,40 @@
             transform: scale(1.1);
             z-index: -1;
         }
-        .login-card {
-            max-height: fit-content;
-            height: -webkit-fill-available;
-            min-width: 33%;
-            align-content: center;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            background: rgba(255, 255, 255, 0.9);
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             position: relative;
+            padding: 20px;
+        }
+        .instrucoes-card {
+            margin: auto;
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 24px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             z-index: 1;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 845px;
+            min-width: 350px;
+            height: 100vh;
+            padding: 0 30px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         .login-header {
             text-align: center;
@@ -62,41 +82,25 @@
             margin-top: 15px;
             font-weight: bold;
         }
-
-        .instrucoes-card {
-            position: relative;
-            width: 55%;
-            height: 24%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            background: rgba(255, 255, 255, 0.97);
-            left: -160px;
-            padding: 24px 40px;
-            gap: 16px;
-        }
-
         .logo-sig {
             display: flex;
             justify-content: center;
             align-items: center;
+            margin-bottom: 15px;
         }
-
         .texto-instrucoes {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
         }
-
         .texto-informativo {
-            font-size: 18px;
-            margin-bottom: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #333;
         }
-
         .password-wrapper {
             position: relative;
             width: 100%;
@@ -120,60 +124,65 @@
         .btn-show-password:hover {
             color: #005a9c;
         }
+        .footer-texto {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #111;
+            font-size: 14px;
+            z-index: 1;
+            padding-bottom: 10px
+        }
 
-        /* RESPONSIVIDADE MOBILE */
-        @media (max-width: 768px) {
+        /* RESPONSIVIDADE MOBILE E TABLET */
+        @media (max-width: 992px) {
             .plano-de-fundo {
                 flex-direction: column;
-                justify-content: center;
-                padding: 15px;
+                overflow-y: auto;
             }
-            .instrucoes-card {
+            .left-panel {
                 display: none !important;
             }
             .login-card {
-                min-width: 100%;
-                width: 100%;
-                margin: 0;
-            }
-            .footer-texto {
-                left: 0 !important;
-                font-size: 11px !important;
-                bottom: 5px !important;
-                padding: 0 10px;
+                max-width: 100%;
+                height: 100vh;
+                box-shadow: none;
+                padding: 30px;
             }
         }
     </style>
 
     <div sclass="plano-de-fundo" viewModel="@id('vm') @init('com.uem.extrator.viewmodel.LoginVM')">
 
-        <div sclass="instrucoes-card text-center ml-auto mr-auto mb-2">
+        <div sclass="left-panel">
+            <div sclass="instrucoes-card">
+                <div sclass="logo-sig">
+                    <image class="mr-2" width="248.8px" height="70px" src="/images/logo-sig.png"/>
+                </div>
 
-            <div sclass="logo-sig">
-                <image class="mr-2" width="248.8px" height="70px" src="/images/logo-sig.png"/>
+                <div sclass="texto-instrucoes">
+                    <html>
+                        <p class="texto-informativo">
+                            O sistema SIGLattes nasceu da necessidade de reunir e organizar os dados publicados nos currículos Lattes dos pesquisadores da universidade.
+                        </p>
+
+                        <p class="texto-informativo">
+                            O sistema realiza a busca dos currículos diretamente na base de dados do CNPq, por meio de um webservice disponibilizado e autorizado pelo próprio CNPq.
+                            A partir do currículo Lattes de cada docente, o SIGLattes executa a extração, o tratamento e o armazenamento das informações em banco de dados próprio.
+                        </p>
+
+                        <p class="texto-informativo">
+                            Com base nesses dados, o sistema realiza processos de seleção, classificação e agrupamento das informações, possibilitando a geração de indicadores e
+                            relatórios personalizados sobre a produção científica, tecnológica e acadêmica do corpo docente da instituição.
+                        </p>
+                    </html>
+                </div>
             </div>
 
-
-            <div sclass="texto-instrucoes">
-
-                <html>
-                    <p class="texto-informativo">
-                        O sistema SIGLattes nasceu da necessidade de reunir e organizar os dados publicados nos currículos Lattes dos pesquisadores da universidade.
-                    </p>
-
-                    <p class="texto-informativo">
-                        O sistema realiza a busca dos currículos diretamente na base de dados do CNPq, por meio de um webservice disponibilizado e autorizado pelo próprio CNPq.
-                        A partir do currículo Lattes de cada docente, o SIGLattes executa a extração, o tratamento e o armazenamento das informações em banco de dados próprio.
-                    </p>
-
-                    <p class="texto-informativo">
-                        Com base nesses dados, o sistema realiza processos de seleção, classificação e agrupamento das informações, possibilitando a geração de indicadores e
-                        relatórios personalizados sobre a produção científica, tecnológica e acadêmica do corpo docente da instituição.
-                    </p>
-                </html>
-
+            <div sclass="footer-texto">
+                © 2026 Universidade Estadual de Maringá - Pró-Reitoria de Planejamento e Desenvolvimento Institucional - SIGLattes v1.0
             </div>
-
         </div>
 
         <vlayout sclass="login-card">
@@ -212,8 +221,5 @@
             <label value="@load(vm.mensagemErro)" style="color:red; font-size:12px; text-align:center; display:block;"/>
         </vlayout>
 
-        <div sclass="footer-texto" style="position:absolute; bottom:10px; text-align:center; width:100%; color:black; font-size:16px; left: -450px">
-            © 2026 Universidade Estadual de Maringá - Pró-Reitoria de Planejamento e Desenvolvimento Institucional - SIGLattes v1.0
-        </div>
     </div>
 </zk>
