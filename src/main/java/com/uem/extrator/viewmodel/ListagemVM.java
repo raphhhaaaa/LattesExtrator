@@ -9,7 +9,11 @@ import org.zkoss.zk.ui.Desktop;
 import org.zkoss.zk.ui.Executions;
 import org.zkoss.zk.ui.Sessions;
 import org.zkoss.zk.ui.event.Event;
+import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zk.ui.event.EventListener;
+import java.util.Set;
+import java.util.HashSet;
+import com.uem.extrator.service.LattesService;
 import org.zkoss.zul.Window;
 import com.uem.extrator.model.Usuario;
 import java.util.Date;
@@ -27,6 +31,9 @@ public class ListagemVM {
 
     // logger instancia
     private static final Logger logger = LoggerFactory.getLogger(ListagemVM.class);
+
+    // Services
+    private LattesService lattesService = new LattesService();
 
     // DAOs
     private CurriculoDAO curriculoDAO = new CurriculoDAO();
@@ -54,10 +61,14 @@ public class ListagemVM {
     private Curriculo curriculo;
     private boolean resumoExpandido = false;
 
-    // termos de pesquisa
+    // --- PESQUISA E FILTROS --- //
     private String termoPesquisaCurriculo = "";
-    private String termoPesquisaInstituicao = "";
     private String termoPesquisaCurso = "";
+    private String termoPesquisaInstituicao = "";
+
+    // --- EXPORTACAO XML --- //
+    private boolean modoExportacao = false;
+    private Set<Curriculo> curriculosSelecionados = new HashSet<>();
 
     @Init
     public void init() {
@@ -144,6 +155,132 @@ public class ListagemVM {
     @NotifyChange("listaCurriculos")
     public void mudarPagina() {
         carregarCurriculoPaginado();
+    }
+
+    @Command
+    @NotifyChange({"modoExportacao", "curriculosSelecionados"})
+    public void ativarModoExportacao() {
+        this.modoExportacao = true;
+        this.curriculosSelecionados.clear();
+    }
+
+    @Command
+    @NotifyChange({"modoExportacao", "curriculosSelecionados"})
+    public void desativarModoExportacao() {
+        this.modoExportacao = false;
+        this.curriculosSelecionados.clear();
+    }
+
+    @Command
+    @NotifyChange("curriculosSelecionados")
+    public void toggleSelecao(@BindingParam("item") Curriculo item, @BindingParam("checked") boolean checked) {
+        if (checked) {
+            this.curriculosSelecionados.add(item);
+        } else {
+            this.curriculosSelecionados.remove(item);
+        }
+    }
+
+    @Command
+    @NotifyChange("curriculosSelecionados")
+    public void selecionarTodos() {
+        this.curriculosSelecionados.addAll(this.listaCurriculos);
+    }
+
+    @Command
+    @NotifyChange("curriculosSelecionados")
+    public void desmarcarTodos() {
+        this.curriculosSelecionados.clear();
+    }
+
+    @Command
+    public void downloadXmls() {
+        if (this.curriculosSelecionados.isEmpty()) {
+            Clients.showNotification("Selecione pelo menos um currículo.", "warning", null, null, 3000);
+            return;
+        }
+
+        try {
+            LattesService lattesService = new LattesService();
+            com.uem.extrator.service.ILattesSOAP port = lattesService.criarCliente();
+
+            if (this.curriculosSelecionados.size() == 1) {
+                Curriculo c = this.curriculosSelecionados.iterator().next();
+                byte[] zipBytes = port.getCurriculoCompactado(c.getIdLattes());
+                if (zipBytes != null && zipBytes.length > 0) {
+                    String xml = lattesService.descompactarZip(zipBytes);
+                    org.zkoss.zul.Filedownload.save(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8), "text/xml", c.getIdLattes() + ".xml");
+                }
+            } else {
+                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(baos);
+
+                for (Curriculo c : this.curriculosSelecionados) {
+                    try {
+                        byte[] zipBytes = port.getCurriculoCompactado(c.getIdLattes());
+                        if (zipBytes != null && zipBytes.length > 0) {
+                            String xml = lattesService.descompactarZip(zipBytes);
+                            zos.putNextEntry(new java.util.zip.ZipEntry(c.getIdLattes() + ".xml"));
+                            zos.write(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                            zos.closeEntry();
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Falha ao baixar ID " + c.getIdLattes(), ex);
+                    }
+                }
+                zos.close();
+                org.zkoss.zul.Filedownload.save(baos.toByteArray(), "application/zip", "exportacao_lattes_selecionados.zip");
+            }
+        } catch (Exception e) {
+            logger.error("Erro na exportação ZIP", e);
+            Clients.showNotification("Erro ao processar o download.", "error", null, null, 3000);
+        }
+    }
+
+    @Command
+    public void downloadTodaBaseBackground() {
+        Clients.showNotification("Exportação massiva iniciada em background! Você receberá um e-mail com o link/arquivo em breve.", "info", null, null, 5000);
+        
+        new Thread(() -> {
+            try {
+                logger.info("Iniciando exportação COMPLETA em background...");
+                java.util.List<Curriculo> todos = curriculoDAO.listarTodos();
+                LattesService lattesService = new LattesService();
+                com.uem.extrator.service.ILattesSOAP port = lattesService.criarCliente();
+
+                java.io.File tempFile = java.io.File.createTempFile("exportacao_lattes_toda_base_", ".zip");
+                try (java.util.zip.ZipOutputStream zos = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(tempFile))) {
+                    for (Curriculo c : todos) {
+                        try {
+                            byte[] zipBytes = port.getCurriculoCompactado(c.getIdLattes());
+                            if (zipBytes != null && zipBytes.length > 0) {
+                                String xml = lattesService.descompactarZip(zipBytes);
+                                zos.putNextEntry(new java.util.zip.ZipEntry(c.getIdLattes() + ".xml"));
+                                zos.write(xml.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                                zos.closeEntry();
+                            }
+                        } catch (Exception ex) {
+                            logger.error("Falha ao processar batch ID " + c.getIdLattes(), ex);
+                        }
+                    }
+                }
+                
+                logger.info("Exportação em background finalizada. Arquivo: " + tempFile.getAbsolutePath());
+                
+                com.uem.extrator.service.EmailService.getInstance().enviarComAnexo(
+                    "Exportação Lattes Concluída", 
+                    "A extração massiva de toda a base Lattes terminou com sucesso.<br><br>O arquivo compactado contendo todos os currículos em formato XML segue em anexo.",
+                    tempFile
+                );
+                
+                // Opcional: apagar o arquivo tempFile após o envio para não lotar o servidor,
+                // já que o JavaMail envia a cópia para a rede.
+                tempFile.delete();
+
+            } catch (Exception e) {
+                logger.error("Erro na thread de exportação full.", e);
+            }
+        }).start();
     }
 
     @Command
@@ -295,4 +432,6 @@ public class ListagemVM {
     public void setPaginaAtual(int paginaAtual) { this.paginaAtual = paginaAtual; }
     public long getTotalCurriculos() { return totalCurriculos; }
     public void setTotalCurriculos(long totalCurriculos) { this.totalCurriculos = totalCurriculos; }
+    public boolean isModoExportacao() { return modoExportacao; }
+    public Set<Curriculo> getCurriculosSelecionados() { return curriculosSelecionados; }
 }

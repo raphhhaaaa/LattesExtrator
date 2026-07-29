@@ -65,7 +65,7 @@ public class LattesService {
         public List<String> desatualizados = Collections.synchronizedList(new ArrayList<>());
     }
 
-    private ILattesSOAP criarCliente() throws Exception {
+    public ILattesSOAP criarCliente() throws Exception {
         // busca URL dinâmica do configmanager
         ConfigManager config = ConfigManager.getInstance();
         String urlConfigurada = config.getWsdlUrl();
@@ -351,7 +351,7 @@ public class LattesService {
         return cal.getTime();
     }
 
-    private String descompactarZip(byte[] dados) throws Exception {
+    public String descompactarZip(byte[] dados) throws Exception {
         try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(dados))) {
             ZipEntry entry = zis.getNextEntry();
             // O XML do Lattes geralmente vem codificado em ISO-8859-1

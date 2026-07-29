@@ -4,6 +4,9 @@ import com.uem.extrator.util.ConfigManager;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.Multipart;
 import java.io.ObjectInputFilter;
 import java.util.Properties;
 import org.slf4j.Logger;
@@ -93,6 +96,69 @@ public class EmailService {
         }
         sb.append("</ul>");
         return sb.toString();
+    }
+
+    /**
+     * Metodo genérico de envio com anexo.
+     * @param assunto Título do E-mail
+     * @param corpo Mensagem (pode ser HTML)
+     * @param anexo Arquivo a ser anexado
+     */
+    public void enviarComAnexo(String assunto, String corpo, java.io.File anexo) {
+        ConfigManager config = ConfigManager.getInstance();
+        String host = config.getSmtpHost();
+        String port = config.getSmtpPort();
+        String remetente = config.getSystemEmail();
+
+        String destinatario = config.getAdminEmail();
+        if (destinatario == null || destinatario.trim().isEmpty()) {
+            destinatario = remetente;
+        }
+
+        if (remetente == null || remetente.isEmpty() || host == null || host.isEmpty()) {
+            logger.warn("[EmailService] SMTP não configurado. Ignorando envio com anexo.");
+            return;
+        }
+
+        Properties props = new Properties();
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.host", host);
+        props.put("mail.smtp.port", port);
+        props.put("mail.smtp.ssl.trust", host);
+
+        final String password = config.getSmtpPassword();
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(remetente, password);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(remetente));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
+            message.setSubject("[SIGLattes] " + assunto);
+
+            MimeBodyPart corpoPart = new MimeBodyPart();
+            corpoPart.setContent(corpo, "text/html; charset=utf-8");
+
+            MimeBodyPart anexoPart = new MimeBodyPart();
+            anexoPart.attachFile(anexo);
+
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(corpoPart);
+            multipart.addBodyPart(anexoPart);
+
+            message.setContent(multipart);
+
+            Transport.send(message);
+            logger.info("[EmailService] E-mail com anexo enviado DE [{}] PARA [{}]: {}", remetente, destinatario, assunto);
+        } catch (Exception e) {
+            logger.error("[EmailService] Falha ao enviar E-mail com anexo: ", e);
+        }
     }
 }
 

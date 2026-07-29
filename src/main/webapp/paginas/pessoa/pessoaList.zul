@@ -60,6 +60,25 @@
                                     </div>
                                 </div>
 
+                                <hlayout visible="@load(not vm.modoExportacao)" valign="middle">
+                                    <button label="Baixar XML"
+                                            onClick="@command('ativarModoExportacao')"
+                                            iconSclass="z-icon-download"
+                                            sclass="btn btn-light btn-sm text-primary font-weight-bold"
+                                            style="margin-right: 10px;"
+                                            visible="${sessionScope.usuario_logado.admin or sessionScope.usuario_logado.gestor}"
+                                    />
+                                </hlayout>
+
+                                <hlayout visible="@load(vm.modoExportacao)" valign="middle" style="margin-right: 10px;">
+                                    <button label="Selecionar Todos" onClick="@command('selecionarTodos')" sclass="btn btn-light btn-sm text-primary font-weight-bold" style="margin-right: 5px;"/>
+                                    <button label="Desmarcar Todos" onClick="@command('desmarcarTodos')" sclass="btn btn-light btn-sm text-primary font-weight-bold" style="margin-right: 5px;"/>
+                                    <button label="@load(c:cat3('Download (', vm.curriculosSelecionados.size(), ')'))" 
+                                            onClick="@command('downloadXmls')" iconSclass="z-icon-download" sclass="btn btn-light btn-sm text-success font-weight-bold" style="margin-right: 5px;"/>
+                                    <button label="Baixar Toda a Base" onClick="@command('downloadTodaBaseBackground')" iconSclass="z-icon-reply-all" sclass="btn btn-light btn-sm font-weight-bold" style="margin-right: 5px;"/>
+                                    <button label="Cancelar" onClick="@command('desativarModoExportacao')" iconSclass="z-icon-ban" sclass="btn btn-light btn-sm text-danger font-weight-bold"/>
+                                </hlayout>
+
                                 <button label="Atualizar Lista"
                                         onClick="@command('atualizar')"
                                         iconSclass="z-icon-refresh"
@@ -82,6 +101,7 @@
                                      sclass="table-striped">
 
                                 <listhead>
+                                    <listheader width="40px" visible="@load(vm.modoExportacao)" align="center"/>
                                     <listheader label="Nome do Pesquisador" hflex="1" sort="auto(nomeCompleto)" style="font-weight:bold"/>
                                     <listheader label="ID Lattes" width="160px" align="center" style="font-weight:bold"/>
                                     <listheader label="Resumo Profissional" hflex="3" style="font-weight:bold"/>
@@ -90,6 +110,10 @@
 
                                 <template name="model">
                                     <listitem>
+                                        <listcell visible="@load(vm.modoExportacao)">
+                                            <checkbox checked="@load(vm.curriculosSelecionados.contains(each))" 
+                                                      onCheck="@command('toggleSelecao', item=each, checked=event.isChecked())" />
+                                        </listcell>
                                         <listcell>
                                             <label value="@load(each.nomeCompleto)" style="font-weight:bold; font-size: 14px; color: #333;"/>
                                         </listcell>
