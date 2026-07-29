@@ -73,6 +73,7 @@ public class ConfigVM {
     private String smtpPassword;
     private String systemEmail;
     private String adminEmail;
+    private String gestorEmail;
     private String semanticScholarApiKey;
     private boolean notifyOutdated;
     private boolean notifyWeekly;
@@ -108,6 +109,7 @@ public class ConfigVM {
         this.smtpPassword = config.getSmtpPassword();
         this.systemEmail = config.getSystemEmail();
         this.adminEmail = config.getAdminEmail();
+        this.gestorEmail = config.getGestorEmail();
         this.semanticScholarApiKey = config.getSemanticScholarApiKey();
         this.notifyOutdated = config.isNotifyOutdated();
         this.notifyWeekly = config.isNotifyWeekly();
@@ -199,6 +201,7 @@ public class ConfigVM {
             config.setSmtpPassword(this.smtpPassword);
             config.setSystemEmail(this.systemEmail);
             config.setAdminEmail(this.adminEmail);
+            config.setGestorEmail(this.gestorEmail);
             config.setSemanticScholarApiKey(this.semanticScholarApiKey);
             config.setNotifyOutdated(this.notifyOutdated);
             config.setNotifyWeekly(this.notifyWeekly);
@@ -394,6 +397,7 @@ public class ConfigVM {
         this.smtpPassword = "";
         this.systemEmail = "";
         this.adminEmail = "";
+        this.gestorEmail = "";
         this.semanticScholarApiKey = "";
         this.notifyOutdated = false;
         this.notifyWeekly = false;
@@ -440,6 +444,8 @@ public class ConfigVM {
     public void setSystemEmail(String systemEmail) { this.systemEmail = systemEmail; }
     public String getAdminEmail() { return adminEmail; }
     public void setAdminEmail(String adminEmail) { this.adminEmail = adminEmail; }
+    public String getGestorEmail() { return gestorEmail; }
+    public void setGestorEmail(String gestorEmail) { this.gestorEmail = gestorEmail; }
     public String getSemanticScholarApiKey() { return semanticScholarApiKey; }
     public void setSemanticScholarApiKey(String semanticScholarApiKey) { this.semanticScholarApiKey = semanticScholarApiKey; }
     public boolean isNotifyOutdated() { return notifyOutdated; }

@@ -40,11 +40,17 @@ public class EmailService {
         String port = config.getSmtpPort();
         String remetente = config.getSystemEmail(); // o robo
 
-        // define quem recebe. se não tiver nenhum admin cadastrado manda para o proprio robo (loopback)
-        String destinatario = config.getAdminEmail();
-        if (destinatario == null || destinatario.trim().isEmpty()) {
-            destinatario = remetente;
+        String adminEmail = config.getAdminEmail();
+        String gestorEmail = config.getGestorEmail();
+
+        java.util.List<String> dests = new java.util.ArrayList<>();
+        if (adminEmail != null && !adminEmail.trim().isEmpty()) { dests.add(adminEmail.trim()); }
+        if (gestorEmail != null && !gestorEmail.trim().isEmpty()) { dests.add(gestorEmail.trim()); }
+
+        if (dests.isEmpty()) {
+            dests.add(remetente);
         }
+        String destinatariosCsv = String.join(",", dests);
 
         if (remetente == null || remetente.isEmpty() || host == null || host.isEmpty()) {
             logger.warn("[EmailService] SMTP não configurado. Ignorando envio.");
@@ -73,8 +79,8 @@ public class EmailService {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(remetente)); // de: Robô
 
-            // Para: Admin (ou próprio robô se estiver vazio)
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
+            // Para: Lista de e-mails separados por vírgula
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatariosCsv));
 
             // E-mail
             message.setSubject("[SIGLattes] " + assunto);
@@ -82,7 +88,7 @@ public class EmailService {
 
             // envio
             Transport.send(message);
-            logger.info("[EmailService] E-mail enviado DE [{}] PARA [{}]: {}", remetente, destinatario, assunto);
+            logger.info("[EmailService] E-mail enviado DE [{}] PARA [{}]: {}", remetente, destinatariosCsv, assunto);
         } catch (MessagingException e) {
             logger.error("[EmailService] Falha ao enviar E-mail: ", e);
         }
@@ -110,10 +116,17 @@ public class EmailService {
         String port = config.getSmtpPort();
         String remetente = config.getSystemEmail();
 
-        String destinatario = config.getAdminEmail();
-        if (destinatario == null || destinatario.trim().isEmpty()) {
-            destinatario = remetente;
+        String adminEmail = config.getAdminEmail();
+        String gestorEmail = config.getGestorEmail();
+
+        java.util.List<String> dests = new java.util.ArrayList<>();
+        if (adminEmail != null && !adminEmail.trim().isEmpty()) { dests.add(adminEmail.trim()); }
+        if (gestorEmail != null && !gestorEmail.trim().isEmpty()) { dests.add(gestorEmail.trim()); }
+
+        if (dests.isEmpty()) {
+            dests.add(remetente);
         }
+        String destinatariosCsv = String.join(",", dests);
 
         if (remetente == null || remetente.isEmpty() || host == null || host.isEmpty()) {
             logger.warn("[EmailService] SMTP não configurado. Ignorando envio com anexo.");
@@ -139,7 +152,7 @@ public class EmailService {
         try {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(remetente));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatario));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(destinatariosCsv));
             message.setSubject("[SIGLattes] " + assunto);
 
             MimeBodyPart corpoPart = new MimeBodyPart();
@@ -155,7 +168,7 @@ public class EmailService {
             message.setContent(multipart);
 
             Transport.send(message);
-            logger.info("[EmailService] E-mail com anexo enviado DE [{}] PARA [{}]: {}", remetente, destinatario, assunto);
+            logger.info("[EmailService] E-mail com anexo enviado DE [{}] PARA [{}]: {}", remetente, destinatariosCsv, assunto);
         } catch (Exception e) {
             logger.error("[EmailService] Falha ao enviar E-mail com anexo: ", e);
         }

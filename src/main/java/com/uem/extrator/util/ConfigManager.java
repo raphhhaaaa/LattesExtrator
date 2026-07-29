@@ -51,6 +51,7 @@ public class ConfigManager {
     private static final String DEFAULT_SMTP_PASSWORD = "";
     private static final String DEFAULT_SYSTEM_EMAIL = "";
     private static final String DEFAULT_ADMIN_EMAIL = "";
+    private static final String DEFAULT_GESTOR_EMAIL = "";
     private static final String DEFAULT_SEMANTIC_SCHOLAR_API_KEY = "";
     private static final String DEFAULT_NOTIFY_OUTDATED = "false";
     private static final String DEFAULT_NOTIFY_WEEKLY = "false";
@@ -115,6 +116,7 @@ public class ConfigManager {
             properties.setProperty("smtp_password", DEFAULT_SMTP_PASSWORD);
             properties.setProperty("system_email", DEFAULT_SYSTEM_EMAIL);
             properties.setProperty("admin_email", DEFAULT_ADMIN_EMAIL);
+            properties.setProperty("gestor_email", DEFAULT_GESTOR_EMAIL);
             properties.setProperty("semantic_scholar_api_key", DEFAULT_SEMANTIC_SCHOLAR_API_KEY);
             properties.setProperty("notify_outdated", DEFAULT_NOTIFY_OUTDATED);
             properties.setProperty("notify_weekly", DEFAULT_NOTIFY_WEEKLY);
@@ -203,6 +205,9 @@ public class ConfigManager {
 
     public String getAdminEmail() { return properties.getProperty("admin_email", DEFAULT_ADMIN_EMAIL); }
     public void setAdminEmail(String v) { properties.setProperty("admin_email", v); }
+
+    public String getGestorEmail() { return properties.getProperty("gestor_email", DEFAULT_GESTOR_EMAIL); }
+    public void setGestorEmail(String v) { properties.setProperty("gestor_email", v); }
 
     public String getSemanticScholarApiKey() { return properties.getProperty("semantic_scholar_api_key", DEFAULT_SEMANTIC_SCHOLAR_API_KEY); }
     public void setSemanticScholarApiKey(String v) { properties.setProperty("semantic_scholar_api_key", v); }
