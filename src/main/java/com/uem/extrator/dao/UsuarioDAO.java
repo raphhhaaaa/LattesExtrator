@@ -28,6 +28,31 @@ public class UsuarioDAO {
         }
     }
 
+    public Usuario buscarPorPrefixoEmail(String prefixo) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            // Usa lower() para garantir que a busca não falhe devido a letras maiúsculas/minúsculas
+            String hql = "FROM Usuario u WHERE lower(u.emailInstitucional) LIKE lower(:prefixo)";
+            Query<Usuario> query = session.createQuery(hql, Usuario.class);
+            query.setParameter("prefixo", prefixo.trim().toLowerCase() + "@%");
+            return query.setMaxResults(1).uniqueResult(); // garante apenas 1
+        } catch (Exception e) {
+            logger.error("Erro ao buscar usuario por email (UsuarioDAO)", e);
+            return null;
+        }
+    }
+
+    public Usuario buscarPorEmailExato(String email) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            String hql = "FROM Usuario u WHERE lower(u.emailInstitucional) = lower(:email)";
+            Query<Usuario> query = session.createQuery(hql, Usuario.class);
+            query.setParameter("email", email.trim().toLowerCase());
+            return query.setMaxResults(1).uniqueResult(); // garante apenas 1
+        } catch (Exception e) {
+            logger.error("Erro ao buscar usuario por email exato (UsuarioDAO)", e);
+            return null;
+        }
+    }
+
     public boolean salvar(Usuario u) {
 
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {

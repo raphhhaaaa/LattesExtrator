@@ -38,6 +38,9 @@ public class Usuario implements Serializable {
     @Column(name = "fg_gestor")
     private boolean gestor = false;
 
+    @Column(name= "em_institucional", length = 50)
+    private String emailInstitucional;
+
     public Usuario() {}
 
     public Usuario(String login, String senhaOriginal, String nome, boolean admin) {
@@ -124,5 +127,13 @@ public class Usuario implements Serializable {
 
     public void setGestor(boolean gestor) {
         this.gestor = gestor;
+    }
+
+    public String getEmailInstitucional() {
+        return emailInstitucional;
+    }
+
+    public void setEmailInstitucional(String emailInstitucional) {
+        this.emailInstitucional = emailInstitucional;
     }
 }

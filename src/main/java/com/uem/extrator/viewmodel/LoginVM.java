@@ -62,13 +62,20 @@ public class LoginVM {
             autenticado = ldap.autenticar(usuario, senha);
 
             if (autenticado) {
-                // cria usuário temporário na memória
-                // vive apenas na sessão do Tomcat e nunca é salvo no DB2.
-                usuarioSessao = new Usuario();
-                usuarioSessao.setLogin(usuario);
-                usuarioSessao.setNome(usuario.split("@")[0]); // Usa o RA ou NPM como nome
-                // define um perfil/nível de acesso padrão para quem vem do LDAP
-                usuarioSessao.setAdmin(false);
+                // Tenta buscar no banco de dados local um usuário com email correspondente a este login (RA/NPM)
+                usuarioSessao = dao.buscarPorPrefixoEmail(usuarioLimpo);
+                
+                if (usuarioSessao == null) {
+                    // cria usuário temporário na memória
+                    // vive apenas na sessão do Tomcat e nunca é salvo no DB2.
+                    usuarioSessao = new Usuario();
+                    usuarioSessao.setLogin(usuario);
+                    usuarioSessao.setNome(usuario.split("@")[0]); // Usa o RA ou NPM como nome
+                    // define um perfil/nível de acesso padrão para quem vem do LDAP
+                    usuarioSessao.setAdmin(false);
+                    usuarioSessao.setGestor(false);
+                }
+
                 // cria vigia para monitoramente de sessao ativa
                 UsuarioSessaoListener vigia = new UsuarioSessaoListener(usuarioSessao.getLogin());
                 org.zkoss.zk.ui.Sessions.getCurrent().setAttribute("vigia_sessao", vigia);
