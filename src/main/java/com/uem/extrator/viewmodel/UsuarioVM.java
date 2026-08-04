@@ -62,6 +62,21 @@ public class UsuarioVM {
             return;
         }
 
+        // validação do e-mail institucional obrigatório para Admin e Gestor
+        if (usuarioEdicao.isAdmin() || usuarioEdicao.isGestor()) {
+            if (usuarioEdicao.getEmailInstitucional() == null || usuarioEdicao.getEmailInstitucional().trim().isEmpty()) {
+                Clients.showNotification("O e-mail institucional é obrigatório para Administradores e Gestores!", "warning", null, null, 3000);
+                return;
+            }
+            
+            // Verifica duplicidade de e-mail
+            Usuario emailExistente = dao.buscarPorEmailExato(usuarioEdicao.getEmailInstitucional());
+            if (emailExistente != null && !emailExistente.getId().equals(usuarioEdicao.getId())) {
+                Clients.showNotification("E-mail institucional já cadastrado para outro usuário.", "error", null, null, 3000);
+                return;
+            }
+        }
+
         // se digitou senha nova, aplica hash e salva
         if (senhaTemporaria != null && !senhaTemporaria.isEmpty()) {
             usuarioEdicao.setSenha(senhaTemporaria);
