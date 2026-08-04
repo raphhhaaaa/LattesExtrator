@@ -75,6 +75,11 @@ public class UsuarioVM {
                 Clients.showNotification("E-mail institucional já cadastrado para outro usuário.", "error", null, null, 3000);
                 return;
             }
+
+            if (!usuarioEdicao.getEmailInstitucional().split("@")[1].equals("uem.br")) {
+                Clients.showNotification("Domínio de e-mail inválido.",  "error", null, null, 3000);
+                return;
+            }
         }
 
         // se digitou senha nova, aplica hash e salva
