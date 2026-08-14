@@ -75,3 +75,4 @@ src/test/
 /artifacts
 settings.json
 /scripts/*
+/analise_coautoria_internacional.py

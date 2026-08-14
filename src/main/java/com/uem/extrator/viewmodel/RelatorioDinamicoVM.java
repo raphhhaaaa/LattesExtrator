@@ -12,7 +12,10 @@ import org.zkoss.zk.ui.Sessions;
 import org.zkoss.zk.ui.util.Clients;
 import org.zkoss.zul.Filedownload;
 import org.zkoss.zul.ListModelList;
-import org.zkoss.zk.ui.util.Clients;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.event.Events;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,17 +97,37 @@ public class RelatorioDinamicoVM {
 
     // Chamado apenas quando a INSTITUIÇÃO muda (Recalcula TUDO)
     @Command
+    public void alterarInstituicao(@ContextParam(ContextType.VIEW) Component view) {
+        Clients.showBusy("Processando grandes volumes de dados. Aguarde...");
+        Events.echoEvent("onProcessarFiltro", view, null);
+    }
+
+    @Command
     @NotifyChange({"dadosGrafico", "dadosGraficoOrdenado", "totalGeral", "tituloGrafico", "totalPesquisadores", "totalArtigos", "totalLivros", "totalEventos", "totalDoutorados", "totalMestrados"})
-    public void alterarInstituicao() {
-        atualizarKPIs(instituicaoSelecionada);
-        atualizarGrafico();
+    public void processarFiltroAsync() {
+        try {
+            atualizarKPIs(instituicaoSelecionada);
+            atualizarGrafico();
+        } finally {
+            Clients.clearBusy();
+        }
     }
 
     // Chamado apenas quando o TIPO DE GRÁFICO muda (Não mexe nos KPIs)
     @Command
+    public void alterarTipoProducao(@ContextParam(ContextType.VIEW) Component view) {
+        Clients.showBusy("Atualizando gráfico. Aguarde...");
+        Events.echoEvent("onProcessarGrafico", view, null);
+    }
+
+    @Command
     @NotifyChange({"dadosGrafico", "dadosGraficoOrdenado", "totalGeral", "tituloGrafico"})
-    public void alterarTipoProducao() {
-        atualizarGrafico();
+    public void processarGraficoAsync() {
+        try {
+            atualizarGrafico();
+        } finally {
+            Clients.clearBusy();
+        }
     }
 
     // Método que gera APENAS o gráfico da aba
