@@ -57,8 +57,7 @@ public class RelatorioDAO {
                        .append("  SELECT 1 FROM Atuacao a JOIN a.vinculos v JOIN a.instituicao i ")
                        .append("  WHERE a.curriculo = f.curriculo ")
                        .append("  AND UPPER(i.nomeInstituicao) = :nomeInst ")
-                       .append("  AND (v.anoInicio IS NULL OR v.anoInicio <= f.anoConclusao) ")
-                       .append("  AND (v.anoFim IS NULL OR v.anoFim >= f.anoConclusao)")
+                       .append("  AND f.anoConclusao BETWEEN COALESCE(v.anoInicio, 0) AND COALESCE(v.anoFim, 9999)")
                        .append(") ")
                        .append("GROUP BY f.anoConclusao ")
                        .append("ORDER BY f.anoConclusao DESC");
@@ -86,8 +85,7 @@ public class RelatorioDAO {
                        .append("  SELECT 1 FROM Atuacao a JOIN a.vinculos v JOIN a.instituicao i ")
                        .append("  WHERE a.curriculo = p.curriculo ")
                        .append("  AND UPPER(i.nomeInstituicao) = :nomeInst ")
-                       .append("  AND (v.anoInicio IS NULL OR v.anoInicio <= p.ano) ")
-                       .append("  AND (v.anoFim IS NULL OR v.anoFim >= p.ano)")
+                       .append("  AND p.ano BETWEEN COALESCE(v.anoInicio, 0) AND COALESCE(v.anoFim, 9999)")
                        .append(") ")
                        .append("GROUP BY p.ano ")
                        .append("ORDER BY p.ano DESC");
@@ -138,8 +136,7 @@ public class RelatorioDAO {
                        .append("  SELECT 1 FROM Atuacao a JOIN a.vinculos v JOIN a.instituicao i ")
                        .append("  WHERE a.curriculo = f.curriculo ")
                        .append("  AND UPPER(i.nomeInstituicao) = :nomeInst ")
-                       .append("  AND (v.anoInicio IS NULL OR v.anoInicio <= f.anoConclusao) ")
-                       .append("  AND (v.anoFim IS NULL OR v.anoFim >= f.anoConclusao)")
+                       .append("  AND f.anoConclusao BETWEEN COALESCE(v.anoInicio, 0) AND COALESCE(v.anoFim, 9999)")
                        .append(") ")
                        .append("ORDER BY f.anoConclusao DESC");
                 } else {
@@ -163,8 +160,7 @@ public class RelatorioDAO {
                        .append("  SELECT 1 FROM Atuacao a JOIN a.vinculos v JOIN a.instituicao i ")
                        .append("  WHERE a.curriculo = c ")
                        .append("  AND UPPER(i.nomeInstituicao) = :nomeInst ")
-                       .append("  AND (v.anoInicio IS NULL OR v.anoInicio <= p.ano) ")
-                       .append("  AND (v.anoFim IS NULL OR v.anoFim >= p.ano)")
+                       .append("  AND p.ano BETWEEN COALESCE(v.anoInicio, 0) AND COALESCE(v.anoFim, 9999)")
                        .append(") ")
                        .append("ORDER BY p.citacoes DESC NULLS LAST, p.ano DESC");
                 } else {
@@ -227,8 +223,7 @@ public class RelatorioDAO {
                        .append("  SELECT 1 FROM Atuacao a JOIN a.vinculos v JOIN a.instituicao i ")
                        .append("  WHERE a.curriculo = p.curriculo ")
                        .append("  AND UPPER(i.nomeInstituicao) = :inst ")
-                       .append("  AND (v.anoInicio IS NULL OR v.anoInicio <= p.ano) ")
-                       .append("  AND (v.anoFim IS NULL OR v.anoFim >= p.ano) ")
+                       .append("  AND p.ano BETWEEN COALESCE(v.anoInicio, 0) AND COALESCE(v.anoFim, 9999) ")
                        .append(") ");
             } else {
                 hqlProd.append("WHERE p.tipo IN ('ARTIGO','LIVRO','EVENTO') ");
@@ -250,8 +245,7 @@ public class RelatorioDAO {
                        .append("  SELECT 1 FROM Atuacao a JOIN a.vinculos v JOIN a.instituicao i ")
                        .append("  WHERE a.curriculo = f.curriculo ")
                        .append("  AND UPPER(i.nomeInstituicao) = :inst ")
-                       .append("  AND (v.anoInicio IS NULL OR v.anoInicio <= f.anoConclusao) ")
-                       .append("  AND (v.anoFim IS NULL OR v.anoFim >= f.anoConclusao) ")
+                       .append("  AND f.anoConclusao BETWEEN COALESCE(v.anoInicio, 0) AND COALESCE(v.anoFim, 9999) ")
                        .append(") ");
             } else {
                 hqlForm.append("WHERE f.tipoFormacao IN ('DOUTORADO','MESTRADO') ");
@@ -293,8 +287,7 @@ public class RelatorioDAO {
                     hql.append("AND EXISTS (")
                        .append("  SELECT 1 FROM Atuacao a JOIN a.vinculos v JOIN a.instituicao i ")
                        .append("  WHERE a.curriculo = c AND UPPER(i.nomeInstituicao) = :inst ")
-                       .append("  AND (v.anoInicio IS NULL OR v.anoInicio <= f.anoConclusao) ")
-                       .append("  AND (v.anoFim IS NULL OR v.anoFim >= f.anoConclusao)")
+                       .append("  AND f.anoConclusao BETWEEN COALESCE(v.anoInicio, 0) AND COALESCE(v.anoFim, 9999)")
                        .append(") ");
                 }
                 hql.append("GROUP BY c.nomeCompleto ")
@@ -307,8 +300,7 @@ public class RelatorioDAO {
                     hql.append("AND EXISTS (")
                        .append("  SELECT 1 FROM Atuacao a JOIN a.vinculos v JOIN a.instituicao i ")
                        .append("  WHERE a.curriculo = c AND UPPER(i.nomeInstituicao) = :inst ")
-                       .append("  AND (v.anoInicio IS NULL OR v.anoInicio <= p.ano) ")
-                       .append("  AND (v.anoFim IS NULL OR v.anoFim >= p.ano)")
+                       .append("  AND p.ano BETWEEN COALESCE(v.anoInicio, 0) AND COALESCE(v.anoFim, 9999)")
                        .append(") ");
                 }
                 hql.append("GROUP BY c.nomeCompleto ")

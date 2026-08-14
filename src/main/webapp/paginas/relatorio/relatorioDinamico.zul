@@ -28,7 +28,9 @@
     <borderlayout width="100vw" height="100vh"
                   apply="org.zkoss.bind.BindComposer"
                   viewModel="@id('vm') @init('com.uem.extrator.viewmodel.RelatorioDinamicoVM')"
-                  validationMessages="@id('vmsgs')">
+                  validationMessages="@id('vmsgs')"
+                  onProcessarFiltro="@command('processarFiltroAsync')"
+                  onProcessarGrafico="@command('processarGraficoAsync')">
 
         <north border="none" sclass="meu-north">
             <include src="/header.zul" />
